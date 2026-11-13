@@ -1,103 +1,125 @@
-# Pet-Care
-This is a 2D OpenGL-based virtual pet care game where you take care of a digital cat. You can feed it, let it sleep, and play mini-games with it like ball game and fishing game. The game also simulates day/night cycles, hunger, and health levels, so you must manage your pet’s needs.
+# Dog Care — Buddy
 
-1. Cat Display
+A 2D OpenGL-based virtual pet care game. You take care of **Buddy**, a
+golden-brown dog: feed him kibble and bones from his bowl, let him sleep
+in his dog house, and play fetch with him. Hunger, health and the
+day/night cycle keep running, so you have to look after him.
 
-The cat is drawn using points, lines, and circles (draw_cat() function).
+The game is drawn with OpenGL points, lines and circles, using the
+midpoint line and circle algorithms — the whole scene (Buddy, his house,
+his bowls, the sun and clouds) is plotted point by point.
 
-Animations include:
+## 1. Buddy
 
-Sleeping eyes
+Buddy is drawn with solid filled shapes (`draw_dog()`): a golden-brown
+coat with a cream belly and muzzle, floppy ears, a dark patch over one
+eye, and a tail that never stops wagging.
 
-Eating mouth
+His face changes with his mood:
 
-Tail and paws
+- Happy smile with his tongue out when he is doing well
+- Open mouth while eating
+- Frown when he is unhappy (health at zero)
+- Closed sleepy eyes while he sleeps
+- Wide excited eyes when fireworks go off
 
-Whiskers
+He walks with the LEFT / RIGHT arrow keys and jumps with the UP arrow
+key. Jumping is how you catch a bone mid-air.
 
-Firework reactions when in play mode.
+## 2. Pet stats
 
-The cat can jump when pressing the UP arrow key, and move left/right with LEFT/RIGHT arrow keys.
+- **Health** (green bar, top left) drops if Buddy goes hungry or misses
+  sleep, and reaches zero only if he is badly neglected.
+- **Hunger** grows over time and eats into health — feed him before the
+  bowl is empty.
+- **Sleep** follows the day/night cycle: he gets tired at night and
+  wakes up in the morning.
+- **Unhappiness** sets in when health reaches zero. Feed him to make him
+  happy again.
 
-2. Pet Stats
+## 3. Feeding
 
-Health (shown as a green bar) decreases if hungry or sleep-deprived.
+Buddy eats from a steel-blue food bowl (bottom right), filled with
+kibble and two bones, with a water bowl beside it.
 
-Hunger increases over time and affects health.
+- Walk up to the bowl and press **E** to eat. Each bite lowers hunger
+  and raises health a little.
+- When the bowl is empty, press **E** again next to it to refill it
+  with fresh kibble.
 
-Sleepiness is simulated through day/night cycles.
+## 4. Sleeping
 
-Unhappiness occurs if health reaches zero.
+Buddy sleeps in his dog house (bottom left) — red roof, arched door,
+and a little bone sign above the door.
 
-3. Feeding
+- Walk up to the house and press **B** to sleep. He can only sleep at
+  night (when the sky goes dark); during the day the game tells you to
+  play instead.
+- Press **B** again to wake him up.
 
-Food is placed in a food pan.
+## 5. Mini-games
 
-Player feeds the cat by pressing e when near the pan (automatic eating without using the mouse).
+Press **PLAY** (top right) to enter the playroom, then pick a game with
+the buttons.
 
-Eating reduces hunger and increases health slightly.
+### a. Throw the Bone (fetch)
 
-Food pan can become empty and must be refilled manually.
+Click the bone button and a bone is thrown across the playroom in an
+arc. Two ways to score:
 
-4. Sleeping
+- **Fetch it:** run under the bone with the arrow keys and walk over it
+  where it lands.
+- **Catch it mid-air:** jump (UP arrow) while standing under the flying
+  bone.
 
-The cat can sleep near the bed by pressing b.
+Each fetch or catch scores 1 point. A new bone is thrown a moment
+later. Click the bone button again (or STOP) to see your final score.
 
-Sleep can only happen at night (day <= 0.4), otherwise the game will warn the player.
+### b. Fetch Ball
 
-Sleeping restores energy for playing.
+Click the ball button, then push the ball with **W** (right) and **Q**
+(left). Buddy has to stand next to the ball to push it. Score a point
+every time the ball crosses the goal — the goal switches sides after
+each goal, so keep chasing it.
 
-5. Mini-games
-a. Ball Game
+## 6. User interface
 
-Activate by clicking the ball button.
+- **PLAY / STOP** button toggles play mode.
+- **Ball / Bone** buttons pick a mini-game.
+- **Health bar** (top left) with a heart.
+- **Food bowl and water bowl** (bottom right), **dog house**
+  (bottom left).
+- **Day/night cycle** in the window: blue sky with sun and clouds by
+  day, dark sky with stars by night.
+- **Fireworks** in the playroom: right-click anywhere in the playroom
+  and Buddy jumps with excitement.
 
-Press w to push the ball right, q to push it left.
+## 7. Day / night cycle
 
-Score points if the ball crosses goalposts.
+- Daytime: the sky is bright, the sun is up, clouds drift in the
+  window.
+- Nighttime: the sky darkens, stars come out, and Buddy gets sleepy.
+  If he stays up too late his health drops, so put him to bed.
 
-Cat must be near the ball to play.
+## How to run
 
-b. Fishing Game
+Requires Python 3 and PyOpenGL:
 
-Activate by clicking the fish button.
+```bash
+pip install PyOpenGL
+python main.py
+```
 
-The cat can catch fish by moving under them while the fish moves.
+## Controls
 
-Points are scored for catching fish before it goes off-screen.
-
-6. User Interface
-
-Buttons:
-
-PLAY / STOP button toggles play mode.
-
-Ball / Fish buttons for mini-games.
-
-Health bar displayed on top left.
-
-Food pan bottom-right.
-
-Bed bottom-left.
-
-Day/Night Cycle reflected by window and sky colors.
-
-Optional fireworks during play mode (right-click).
-
-7. Day/Night Cycle
-
-Daytime: day value > 0.4
-
-Nighttime: day value < 0.4
-
-Automatic changes affect:
-
-Sleep requirement
-
-Health if cat sleeps too little
-
-Visual changes:
-
-Sun position
-
-Sky color gradient
+| Key / mouse | What it does |
+| --- | --- |
+| LEFT / RIGHT arrows | Walk Buddy |
+| UP arrow | Jump (catch the bone mid-air) |
+| E | Eat from the food bowl / refill it |
+| B | Sleep in / wake up from the dog house |
+| W / Q | Push the ball right / left |
+| PLAY / STOP button | Enter / leave the playroom |
+| Ball button | Start / stop the fetch ball game |
+| Bone button | Start / stop the throw-the-bone game |
+| Right-click | Fireworks in the playroom |
