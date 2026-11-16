@@ -1,125 +1,114 @@
-# Dog Care — Buddy
+# Buddy's Q-Learning Treasure Hunt
 
-A 2D OpenGL-based virtual pet care game. You take care of **Buddy**, a
-golden-brown dog: feed him kibble and bones from his bowl, let him sleep
-in his dog house, and play fetch with him. Hunger, health and the
-day/night cycle keep running, so you have to look after him.
+Buddy the dog learns to find a hidden bone in a garden, using **real
+Q-Learning** — no scripted route, no hardcoded moves. Watch him
+explore, make mistakes, update his Q-table, and get better. Then test
+his learned policy in challenge mode.
 
-The game is drawn with OpenGL points, lines and circles, using the
-midpoint line and circle algorithms — the whole scene (Buddy, his house,
-his bowls, the sun and clouds) is plotted point by point.
+Buddy is the same dog from the earlier Dog Care game: same golden-brown
+coat, floppy ears, patch over one eye, and a tail that never stops
+wagging. Only the game around him changed.
 
-## 1. Buddy
+## How Q-Learning works here
 
-Buddy is drawn with solid filled shapes (`draw_dog()`): a golden-brown
-coat with a cream belly and muzzle, floppy ears, a dark patch over one
-eye, and a tail that never stops wagging.
+- **Agent:** Buddy. **Environment:** a 7x7 garden grid with trees and
+  rocks. **State:** the square Buddy stands on. **Action:** move up,
+  down, left, or right.
+- **Q-table:** one number per (square, move) — how good Buddy *thinks*
+  that move is in the long run. It starts at zero everywhere and only
+  changes through experience.
+- **Update rule, every step:**
+  `Q(s,a) <- Q(s,a) + alpha * [r + gamma * max Q(s',a') - Q(s,a)]`
+  with alpha (learning rate) 0.10 and gamma (discount factor) 0.90.
+- **Epsilon-greedy:** with probability epsilon Buddy tries a random
+  move (exploration); otherwise he picks his best-known move
+  (exploitation). Epsilon starts at 1.00 and decays 0.995 per episode
+  down to 0.05, so early Buddy wanders and late Buddy trusts his table.
+- **Policy:** usually the best-valued move per square. The garden draws
+  one arrow per square showing it, so you can see the policy directly.
 
-His face changes with his mood:
+## Rewards
 
-- Happy smile with his tongue out when he is doing well
-- Open mouth while eating
-- Frown when he is unhappy (health at zero)
-- Closed sleepy eyes while he sleeps
-- Wide excited eyes when fireworks go off
+| Event | Reward |
+|---|---|
+| Finding the bone | +100 |
+| One step closer to the bone | +5 |
+| One step farther from the bone | -5 |
+| Hitting a tree, rock, or fence | -10 |
+| Every step | -1 |
+| 60 steps without finding the bone | -20 |
 
-He walks with the LEFT / RIGHT arrow keys and jumps with the UP arrow
-key. Jumping is how you catch a bone mid-air.
+The closer/farther pair is symmetric on purpose: it is a
+potential-based shaping reward, so walking toward the bone and back
+again cancels out (+5 - 5 = 0) and only the -1 per step remains. Buddy
+can never farm rewards by pacing between two squares. (An asymmetric
+pair such as +5 / -2 would pay him for exactly that.)
 
-## 2. Pet stats
+All rewards live as named constants at the top of
+`rl/environment.py` — change them there and the whole game follows.
 
-- **Health** (green bar, top left) drops if Buddy goes hungry or misses
-  sleep, and reaches zero only if he is badly neglected.
-- **Hunger** grows over time and eats into health — feed him before the
-  bowl is empty.
-- **Sleep** follows the day/night cycle: he gets tired at night and
-  wakes up in the morning.
-- **Unhappiness** sets in when health reaches zero. Feed him to make him
-  happy again.
+## Run it
 
-## 3. Feeding
-
-Buddy eats from a steel-blue food bowl (bottom right), filled with
-kibble and two bones, with a water bowl beside it.
-
-- Walk up to the bowl and press **E** to eat. Each bite lowers hunger
-  and raises health a little.
-- When the bowl is empty, press **E** again next to it to refill it
-  with fresh kibble.
-
-## 4. Sleeping
-
-Buddy sleeps in his dog house (bottom left) — red roof, arched door,
-and a little bone sign above the door.
-
-- Walk up to the house and press **B** to sleep. He can only sleep at
-  night (when the sky goes dark); during the day the game tells you to
-  play instead.
-- Press **B** again to wake him up.
-
-## 5. Mini-games
-
-Press **PLAY** (top right) to enter the playroom, then pick a game with
-the buttons.
-
-### a. Throw the Bone (fetch)
-
-Click the bone button and a bone is thrown across the playroom in an
-arc. Two ways to score:
-
-- **Fetch it:** run under the bone with the arrow keys and walk over it
-  where it lands.
-- **Catch it mid-air:** jump (UP arrow) while standing under the flying
-  bone.
-
-Each fetch or catch scores 1 point. A new bone is thrown a moment
-later. Click the bone button again (or STOP) to see your final score.
-
-### b. Fetch Ball
-
-Click the ball button, then push the ball with **W** (right) and **Q**
-(left). Buddy has to stand next to the ball to push it. Score a point
-every time the ball crosses the goal — the goal switches sides after
-each goal, so keep chasing it.
-
-## 6. User interface
-
-- **PLAY / STOP** button toggles play mode.
-- **Ball / Bone** buttons pick a mini-game.
-- **Health bar** (top left) with a heart.
-- **Food bowl and water bowl** (bottom right), **dog house**
-  (bottom left).
-- **Day/night cycle** in the window: blue sky with sun and clouds by
-  day, dark sky with stars by night.
-- **Fireworks** in the playroom: right-click anywhere in the playroom
-  and Buddy jumps with excitement.
-
-## 7. Day / night cycle
-
-- Daytime: the sky is bright, the sun is up, clouds drift in the
-  window.
-- Nighttime: the sky darkens, stars come out, and Buddy gets sleepy.
-  If he stays up too late his health drops, so put him to bed.
-
-## How to run
-
-Requires Python 3 and PyOpenGL:
-
-```bash
+```
 pip install PyOpenGL
 python main.py
 ```
 
-## Controls
+## How to use it
 
-| Key / mouse | What it does |
-| --- | --- |
-| LEFT / RIGHT arrows | Walk Buddy |
-| UP arrow | Jump (catch the bone mid-air) |
-| E | Eat from the food bowl / refill it |
-| B | Sleep in / wake up from the dog house |
-| W / Q | Push the ball right / left |
-| PLAY / STOP button | Enter / leave the playroom |
-| Ball button | Start / stop the fetch ball game |
-| Bone button | Start / stop the throw-the-bone game |
-| Right-click | Fireworks in the playroom |
+1. **Start Training** — Buddy learns on his own. Watch the panel:
+   the learning cycle lights up, every event is explained in plain
+   words ("Buddy tried to move right but hit a tree. Penalty -10..."),
+   the formula shows the last *real* update with Buddy's own numbers,
+   and the Q-table section shows the four values for his current
+   square. **Pause / Resume** freezes it so you can read.
+   **Speed** cycles Slow / Medium / Fast. **Fast train 500** runs 500
+   episodes in the background (the window stays responsive).
+2. **Start Challenge** — Buddy walks from the start using only his
+   learned policy (no learning during a challenge). You will see
+   whether he reaches the bone and in how many steps. **Policy:
+   trained / explore** switches between the greedy policy and
+   epsilon-greedy (0.30) so you can feel the difference.
+3. **Place Bone** — click a grass square to hide the bone somewhere
+   else. **Edit Garden** — click a square to add or remove a tree or
+   rock (the game refuses a change that blocks every path). A changed
+   garden makes the old Q-table stale, so the panel says so and
+   **Retrain on new garden** starts learning from scratch on it.
+4. Click any garden square to inspect its four Q-values. Click Buddy's
+   square (or **Follow Buddy**) to track him again.
+
+Keys: `Space` pause/resume, `R` reset, `F` fast train 500,
+`C` challenge, `S` save, `Q` save and quit.
+
+There are no hunger, health, energy, or sleep mechanics any more —
+nothing decays over time, so you can pause and read for as long as
+you like. The doghouse is just decoration at the start square.
+
+## Saving and loading
+
+The Q-table, training statistics, epsilon, and the garden layout save
+automatically to `rl/q_table.pkl` every 25 episodes (and with `S` or
+`Q`). On the next start the app loads it if it exists, so you can
+inspect the trained agent and keep training. **Reset** clears it and
+starts from scratch. The file is local only; delete it to start fresh.
+
+## Files
+
+```
+main.py               OpenGL window: garden, panel, buttons, timers
+rl/environment.py     Garden grid, rewards, episode rules
+rl/agent.py           Q-table, epsilon-greedy, the update rule
+rl/train.py           Headless episode loop (used by Fast train)
+rl/evaluate.py        Greedy-policy evaluation, kept apart from training
+rl/q_table.pkl        Saved model (created while training)
+requirements.txt      PyOpenGL only -- no TensorFlow, no GPU, no API
+```
+
+## Honest limits
+
+Tabular Q-learning fits small, discrete worlds like this garden. A
+higher Q-value means "looks better so far" — not a guarantee. Buddy
+can still fail after training, and a changed garden needs retraining:
+the table was learned for one layout. Training success (with
+exploration on) understates what the policy knows; challenge mode
+measures the policy itself.
